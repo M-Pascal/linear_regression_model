@@ -44,7 +44,7 @@ This project is divided into three main components:
 
 ### **API Testing**  
 Test the API directly via its Swagger UI interface:  
-**[Swagger UI Endpoint](https://linear-regression-model-w35x.onrender.com/prediction)**  
+**[Swagger UI Endpoint](https://linear-regression-model-w35x.onrender.com)**  
 
 1. Open the link above.  
 2. Click on the `/prediction` POST endpoint.  
@@ -86,7 +86,7 @@ Watch the video demo of the app in action:
    ```
 3. Update the `apiUrl` in `main.dart` to match your deployed API endpoint:  
    ```dart
-   final String apiUrl = 'https://linear-regression-model-w35x.onrender.com/prediction';
+   final String apiUrl = 'https://linear-regression-model-w35x.onrender.com';
    ```
 4. Run the Flutter app:  
    ```bash
@@ -99,7 +99,7 @@ Watch the video demo of the app in action:
 
 ### **API Hosting**  
 The FastAPI backend is deployed at:  
-**[Swagger UI URL Link](https://linear-regression-model-w35x.onrender.com/prediction)**
+**[Swagger UI URL Link](https://linear-regression-model-w35x.onrender.com)**
 
 ### **Flutter App Deployment**  
 - Test and smoothly running the Flutter app to physical or virtual mobile devices.  
