@@ -32,7 +32,7 @@ def redirect_to_docs():
 
 # Define the POST endpoint
 @app.post('/prediction')
-def energy_pred(input_parameters: model_input):
+def commodity_pred(input_parameters: model_input):
     try:
         # Transform categorical
         input_data = {
