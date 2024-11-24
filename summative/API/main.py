@@ -25,6 +25,11 @@ class model_input(BaseModel):
     Commodity: str
     Grade: str
 
+
+@app.get("/")
+def redirect_to_docs():
+    return RedirectResponse(url="/docs")
+
 # Define the POST endpoint
 @app.post('/prediction')
 def energy_pred(input_parameters: model_input):
