@@ -130,6 +130,6 @@ The machine learning model was built using linear regression. It was evaluated o
 ---
 
 ## **Contact**  
-For questions or support, feel free to contact the project team: 
+For questions or support you can reach-out to contact me: 
 - **Full-Name**: Pascal Mugisha 
 - **Email**: <p.mugisha@alustudent.com> 
