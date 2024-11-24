@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
     final String minPrice = _minPriceController.text.trim();
     final String maxPrice = _maxPriceController.text.trim();
 
-    // Check for empty fields
+    // Validate inputs
     if (commodity.isEmpty || grade.isEmpty || minPrice.isEmpty || maxPrice.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("All fields are required.")),
@@ -36,11 +36,21 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    double? minPriceValue = double.tryParse(minPrice);
+    double? maxPriceValue = double.tryParse(maxPrice);
+
+    if (minPriceValue == null || maxPriceValue == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter valid numbers for Min_Price and Max_Price.")),
+      );
+      return;
+    }
+
     try {
       // Construct the request payload
       final Map<String, dynamic> payload = {
-        "Min_Price": double.tryParse(minPrice) ?? 0.0,
-        "Max_Price": double.tryParse(maxPrice) ?? 0.0,
+        "Min_Price": minPriceValue,
+        "Max_Price": maxPriceValue,
         "Commodity": commodity,
         "Grade": grade,
       };
@@ -48,20 +58,27 @@ class _HomePageState extends State<HomePage> {
       // Make the POST request
       final response = await http.post(
         Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
         body: jsonEncode(payload),
       );
 
       if (response.statusCode == 200) {
         // Parse the prediction result
         final data = jsonDecode(response.body);
-        final double prediction = double.tryParse(data['prediction'].toString()) ?? 0.0;
-
         setState(() {
-          _predictionResult = "Prediction: Price will be ${prediction.toStringAsFixed(2)}₹ per quintal.";
+          _predictionResult = "Prediction: Price will be ${data['prediction'].toStringAsFixed(2)}₹ per quintal.";
         });
+      } else if (response.statusCode == 422) {
+        // Validation error handling
+        final errorData = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Validation Error: ${errorData['detail'][0]['msg']}")),
+        );
       } else {
-        // Handle API errors
+        // Handle other API errors
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error: ${response.reasonPhrase}")),
         );
@@ -101,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                 Image.network(
                   'https://www.greeningafrika.com/wp-content/uploads/2023/08/The-Important-role-of-Female-Farmers-in-Africa.jpeg',
                   width: double.infinity,
-                  height: 250,
+                  height: 240,
                   fit: BoxFit.cover,
                 ),
                 // Overlay Text
@@ -129,11 +146,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // Form Section
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -146,98 +163,62 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 10),
                   // Commodity Input
-                  Container(
-                    height: 40,
-                    child: TextField(
-                      controller: _commodityController,
-                      decoration: const InputDecoration(
-                        hintMaxLines: 1,
-                        labelText: 'Commodity',
-                        hintText: 'Enter crop type (e.g., Corn, Wheat)',
-                        hintStyle: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 14,
-                        ),
-                        border: OutlineInputBorder(),
-                      ),
+                  TextField(
+                    controller: _commodityController,
+                    decoration: const InputDecoration(
+                      labelText: 'Commodity',
+                      hintText: 'Enter crop type (e.g., Corn, Wheat)',
+                      border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 10),
                   // Grade Input
-                  Container(
-                    height: 40,
-                    child: TextField(
-                      controller: _gradeController,
-                      decoration: const InputDecoration(
-                        hintMaxLines: 1,
-                        labelText: 'Grade',
-                        hintText: 'Enter Small, Medium, or Large...',
-                        hintStyle: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 14,
-                        ),
-                        border: OutlineInputBorder(),
-                      ),
+                  TextField(
+                    controller: _gradeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Grade',
+                      hintText: 'Enter Small, Medium, or Large...',
+                      border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 10),
                   // Min Price Input
-                  Container(
-                    height: 40,
-                    child: TextField(
-                      controller: _minPriceController,
-                      decoration: const InputDecoration(
-                        hintMaxLines: 1,
-                        labelText: 'Min_Price',
-                        hintText: 'Enter Min_Price (e.g., 1200)',
-                        hintStyle: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 14,
-                        ),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
+                  TextField(
+                    controller: _minPriceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Min_Price',
+                      hintText: 'Enter Min_Price (e.g., 1200)',
+                      border: OutlineInputBorder(),
                     ),
+                    keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 10),
                   // Max Price Input
-                  Container(
-                    height: 40,
-                    child: TextField(
-                      controller: _maxPriceController,
-                      decoration: const InputDecoration(
-                        hintMaxLines: 1,
-                        labelText: 'Max_Price',
-                        hintText: 'Enter Max_Price (e.g., 2000)',
-                        hintStyle: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 14,
-                        ),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
+                  TextField(
+                    controller: _maxPriceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Max_Price',
+                      hintText: 'Enter Max_Price (e.g., 2000)',
+                      border: OutlineInputBorder(),
                     ),
+                    keyboardType: TextInputType.number,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10),
                   // Predict Button
                   Center(
                     child: ElevatedButton(
                       onPressed: _fetchPrediction,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(0, 56, 4, 1),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),
                       child: const Text(
                         'PREDICT',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10),
                   // Prediction Output
                   Container(
                     padding: const EdgeInsets.all(16.0),
@@ -247,8 +228,7 @@ class _HomePageState extends State<HomePage> {
                       border: Border.all(color: Colors.green),
                     ),
                     child: Text(
-                      _predictionResult ??
-                          'Prediction: Price of corn will be 750₹ per quintal.',
+                      _predictionResult ?? 'Enter details and press Predict to see results.',
                       style: const TextStyle(fontSize: 15),
                     ),
                   ),
